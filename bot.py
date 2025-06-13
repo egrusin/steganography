@@ -103,9 +103,9 @@ async def process_message_for_embed(message: types.Message, state: FSMContext):
         embed_message(input_path, text, output_path)
         with open(output_path, "rb") as f:
             await message.reply_document(
-                types.BufferedInputFile(f.read(), filename="stego.png"),
-                caption="Сообщение успешно встроено!"
+                types.BufferedInputFile(f.read(), filename="stego.png")
             )
+        message.answer("Сообщение успешно встроено.")
     except Exception as e:
         await message.answer(f"Ошибка: {str(e)}")
     finally:
@@ -194,9 +194,9 @@ async def auto_embed_message(message: types.Message, state: FSMContext):
         embed_message(input_path, message.text or message.caption, output_path)
         with open(output_path, "rb") as f:
             await message.reply_document(
-                types.BufferedInputFile(f.read(), filename="stego.png"),
-                caption="Сообщение встроено!"
+                types.BufferedInputFile(f.read(), filename="stego.png")
             )
+        message.answer("Сообщение успешно встроено.")
     except Exception as e:
         await message.reply(f"Не удалось встроить сообщение: {str(e)}")
     finally:
