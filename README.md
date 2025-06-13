@@ -72,11 +72,6 @@ python stego.py --extract --image stego.png
 Извлечённое сообщение: Секретное сообщение
 ```
 
-
-```bash
-python convert_to_png.py --input image.jpg --output image.png
-```
-
 ## Примеры
 
 1. Встраивание сообщения на кириллице:
