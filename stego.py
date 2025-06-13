@@ -1,5 +1,5 @@
 from PIL import Image
-import argparse
+import os
 
 def text_to_bits(text):
     """
@@ -79,6 +79,7 @@ def embed_message(image_path, message, output_path):
     """
     try:
         img = Image.open(image_path)
+        temp_path = None
         if not image_path.lower().endswith('.png'):
             img = img.convert('RGB')
             temp_path = 'temp.png'
@@ -119,10 +120,13 @@ def embed_message(image_path, message, output_path):
                 break
 
         img.save(output_path, 'PNG')
-        print(f"Сообщение успешно встроено в {output_path}")
+        if temp_path and os.path.exists(temp_path):
+            os.remove(temp_path)
     except FileNotFoundError:
         raise FileNotFoundError(f"Файл {image_path} не найден")
     except Exception as e:
+        if temp_path and os.path.exists(temp_path):
+            os.remove(temp_path)
         raise ValueError(f"Ошибка при обработке изображения: {str(e)}")
 
 def extract_message(image_path):
@@ -161,35 +165,8 @@ def extract_message(image_path):
     length_bits = all_bits[:32]
     message_length = bits_to_int(length_bits)
     if message_length > width * height * 3:
-        raise ValueError("Недопустимая длина сообщения или сообщение отсутствует")
+        raise ValueError("Недопустимая длина сообщения или сообщение отсутствует.")
 
     # Извлекаем биты сообщения (с 33-го бита)
     message_bits = all_bits[32:32 + message_length]
     return bits_to_text(message_bits)
-
-def main():
-    """Точка входа для программы."""
-    parser = argparse.ArgumentParser(description="Программа для LSB-стеганографии")
-    parser.add_argument('--embed', action='store_true', help='Встроить сообщение')
-    parser.add_argument('--extract', action='store_true', help='Извлечь сообщение')
-    parser.add_argument('--image', type=str, required=True, help='Путь к изображению')
-    parser.add_argument('--message', type=str, help='Сообщение для встраивания')
-    parser.add_argument('--output', type=str, default='output.png', help='Путь для сохранения стегоконтейнера')
-    
-    args = parser.parse_args()
-
-    try:
-        if args.embed:
-            if not args.message:
-                raise ValueError("Для встраивания требуется указать сообщение (--message)")
-            embed_message(args.image, args.message, args.output)
-        elif args.extract:
-            message = extract_message(args.image)
-            print(f"Извлечённое сообщение: {message}")
-        else:
-            raise ValueError("Укажите режим: --embed или --extract")
-    except Exception as e:
-        print(e)
-
-if __name__ == "__main__":
-    main()
